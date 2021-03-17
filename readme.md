@@ -136,17 +136,21 @@ pacman -S lxc libvirt unzip
 ```sh
 # clone and enter repo
 git clone https://github.com/engineer-man/piston
-cd piston/lxc
 ```
 
 #### Installation (simple)
 
-- Coming soon.
+- Install additional dependencies python3, pip and distrobuilder
+- `cd container && ./build.sh`
+- Wait, it may take up to an hour.
+- `lxc-create -n piston -t local -- --metadata meta.tar.xz --fstree rootfs.tar.xz`
+- `cd lxc && ./start`
+- Good to go!
+
 
 #### Installation (advanced)
 
-- See `var/install.txt` for how to create a new LXC container and install all of the required
-software.
+- See `var/install.txt` for how to build the container manually
 
 #### CLI Usage
 - `cli/execute [language] [file path] [args]`
@@ -256,6 +260,7 @@ Content-Type: application/json
 `brainfuck`,
 `c`,
 `cpp`,
+`clojure`,
 `crystal`,
 `csharp`,
 `d`,
@@ -271,6 +276,7 @@ Content-Type: application/json
 `julia`,
 `kotlin`,
 `lisp`,
+`lolcode`,
 `lua`,
 `nasm`,
 `nasm64`,
@@ -284,6 +290,7 @@ Content-Type: application/json
 `python3`,
 `ruby`,
 `rust`,
+`scala`,
 `swift`,
 `typescript`,
 `zig`,

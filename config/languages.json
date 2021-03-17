@@ -40,6 +40,13 @@
         ]
     },
     {
+        "name": "clojure",
+        "aliases": [
+            "clojure",
+            "clj"
+        ]
+    },
+    {
         "name": "crystal",
         "aliases": [
             "crystal",
@@ -137,6 +144,12 @@
         ]
     },
     {
+        "name": "lolcode",
+        "aliases": [
+            "lolcode"
+        ]
+    },
+    {
         "name": "nim",
         "aliases": [
             "nim"
@@ -200,6 +213,13 @@
         ]
     },
     {
+        "name": "prolog",
+        "aliases": [
+            "prolog",
+            "plg"
+        ]
+    },
+    {
         "name": "python3",
         "aliases": [
             "py",
@@ -220,6 +240,13 @@
         "aliases": [
             "rs",
             "rust"
+        ]
+    },
+    {
+        "name": "scala",
+        "aliases": [
+            "scala",
+            "sc"
         ]
     },
     {

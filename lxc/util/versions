@@ -21,6 +21,10 @@ echo 'cpp'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "g++ --version"
 echo '---'
 
+echo 'clojure'
+echo '1.10.2'
+echo '---'
+
 echo 'crystal'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "crystal -v"
 echo '---'
@@ -77,6 +81,10 @@ echo 'lisp'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "sbcl --version"
 echo '---'
 
+echo 'lolcode'
+lxc-attach --clear-env -n piston -- /bin/bash -l -c "lci --version"
+echo '---'
+
 echo 'lua'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "lua -v"
 echo '---'
@@ -105,6 +113,10 @@ echo 'php'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "php -v"
 echo '---'
 
+echo 'prolog'
+lxc-attach --clear-env -n piston -- /bin/bash -l -c "swipl --version"
+echo '---'
+
 echo 'python2'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "python -V"
 echo '---'
@@ -123,6 +135,10 @@ echo '---'
 
 echo 'rust'
 lxc-attach --clear-env -n piston -- /bin/bash -l -c "rustc --version"
+echo '---'
+
+echo 'scala'
+lxc-attach --clear-env -n piston -- /bin/bash -l -c "scalac -version"
 echo '---'
 
 echo 'swift'
