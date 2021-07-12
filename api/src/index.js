@@ -1,79 +1,90 @@
+#!/usr/bin/env node
+require('nocamel');
+const Logger = require('logplease');
 const express = require('express');
-const { execute } = require('../../lxc/execute.js');
-const { languages } = require('./languages');
-const { checkSchema, validationResult } = require('express-validator');
+const globals = require('./globals');
+const config = require('./config');
+const path = require('path');
+const fs = require('fs/promises');
+const fss = require('fs');
+const body_parser = require('body-parser');
+const runtime = require('./runtime');
 
-const PORT = 2000;
-
+const logger = Logger.create('index');
 const app = express();
-app.use(express.json());
 
-app.post(
-    '/execute',
-    checkSchema({
-        language: {
-            in: 'body',
-            notEmpty: {
-                errorMessage: 'No language supplied',
-            },
-            isString: {
-                errorMessage: 'Supplied language is not a string',
-            },
-            custom: {
-                options: value => value && languages.find(language => language.aliases.includes(value.toLowerCase())),
-                errorMessage: 'Supplied language is not supported by Piston',
-            },
-        },
-        source: {
-            in: 'body',
-            notEmpty: {
-                errorMessage: 'No source supplied',
-            },
-            isString: {
-                errorMessage: 'Supplied source is not a string',
-            },
-        },
-        args: {
-            in: 'body',
-            optional: true,
-            isArray: {
-                errorMessage: 'Supplied args is not an array',
-            },
-        },
-        stdin: {
-            in: 'body',
-            optional: true,
-            isString: {
-                errorMessage: 'Supplied stdin is not a string',
-            },
+(async () => {
+    logger.info('Setting loglevel to', config.log_level);
+    Logger.setLogLevel(config.log_level);
+    logger.debug('Ensuring data directories exist');
+
+    Object.values(globals.data_directories).for_each(dir => {
+        let data_path = path.join(config.data_directory, dir);
+
+        logger.debug(`Ensuring ${data_path} exists`);
+
+        if (!fss.exists_sync(data_path)) {
+            logger.info(`${data_path} does not exist.. Creating..`);
+
+            try {
+                fss.mkdir_sync(data_path);
+            } catch (e) {
+                logger.error(`Failed to create ${data_path}: `, e.message);
+            }
         }
-    }),
-    async (req, res) => {
-        const errors = validationResult(req).array();
+    });
 
-        if (errors.length === 0) {
-            const language = languages.find(language =>
-                language.aliases.includes(req.body.language.toLowerCase())
-            );
+    logger.info('Loading packages');
+    const pkgdir = path.join(
+        config.data_directory,
+        globals.data_directories.packages
+    );
 
-            const { stdout, stderr, output, ran } = await execute(language, req.body.source, req.body.stdin, req.body.args);
+    const pkglist = await fs.readdir(pkgdir);
 
-            res.status(200).json({
-                ran,
-                language: language.name,
-                version: language.version,
-                stdout,
-                stderr,
-                output,
+    const languages = await Promise.all(
+        pkglist.map(lang => {
+            return fs.readdir(path.join(pkgdir, lang)).then(x => {
+                return x.map(y => path.join(pkgdir, lang, y));
             });
-        } else {
-            res.status(400).json({
-                message: errors[0].msg,
-            });
-        }
-    },
-);
+        })
+    );
 
-app.get('/versions', (_, res) => res.json(languages));
+    const installed_languages = languages
+        .flat()
+        .filter(pkg =>
+            fss.exists_sync(path.join(pkg, globals.pkg_installed_file))
+        );
 
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    installed_languages.for_each(pkg => runtime.load_package(pkg));
+
+    logger.info('Starting API Server');
+    logger.debug('Constructing Express App');
+    logger.debug('Registering middleware');
+
+    app.use(body_parser.urlencoded({ extended: true }));
+    app.use(body_parser.json());
+
+    app.use((err, req, res, next) => {
+        return res.status(400).send({
+            stack: err.stack,
+        });
+    });
+
+    logger.debug('Registering Routes');
+
+    const api_v2 = require('./api/v2');
+    app.use('/api/v2', api_v2);
+    app.use('/api/v2', api_v2);
+
+    app.use((req, res, next) => {
+        return res.status(404).send({ message: 'Not Found' });
+    });
+
+    logger.debug('Calling app.listen');
+    const [address, port] = config.bind_address.split(':');
+
+    app.listen(port, address, () => {
+        logger.info('API server started on', config.bind_address);
+    });
+})();

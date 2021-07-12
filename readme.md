@@ -1,9 +1,14 @@
 <h1 align="center">
-    <a href="https://github.com/engineer-man/piston"><img src="images/icon_circle.svg" width="25" height="25" alt="engineer-man piston"></a>
-  Piston
+    <a href="https://github.com/engineer-man/piston">
+        <img src="var/docs/images/piston.svg" valign="middle" width="58" height="58" alt="engineer-man piston" />
+    </a>
+    <span valign="middle">
+        Piston
+    </span>
 </h1>
 
 <h3 align="center">A high performance general purpose code execution engine.</h3>
+
 <br>
 
 <p align="center">
@@ -32,246 +37,282 @@
 </h4>
 
 ---
+
 <br>
 
 # About
 
 <h4>
-Piston is a high performance general purpose code execution engine. It excels at running untrusted and
-possibly malicious code without fear from any harmful effects.
+    Piston is a high performance general purpose code execution engine. It excels at running untrusted and
+    possibly malicious code without fear from any harmful effects.
 </h4>
+
 <br>
 
 It's used in numerous places including:
-* [EMKC Challenges](https://emkc.org/challenges),
-* [EMKC Weekly Contests](https://emkc.org/contests),
-* [Engineer Man Discord Server](https://discord.gg/engineerman),
-* [I Run Code (Discord Bot)](https://github.com/engineer-man/piston-bot) bot as well as 1300+ other servers
-and 100+ direct integrations.
 
-To get it in your own server, go here: https://emkc.org/run.
+- [EMKC Challenges](https://emkc.org/challenges)
+- [EMKC Weekly Contests](https://emkc.org/contests)
+- [Engineer Man Discord Server](https://discord.gg/engineerman)
+- Web IDEs
+- 200+ direct integrations
 
+<br>
+
+### Official Extensions
+
+The following are approved and endorsed extensions/utilities to the core Piston offering.
+
+- [I Run Code](https://github.com/engineer-man/piston-bot), a Discord bot used in 4100+ servers to handle arbitrary code evaluation in Discord. To get this bot in your own server, go here: https://emkc.org/run.
+- [Piston CLI](https://github.com/Shivansh-007/piston-cli), a universal shell supporting code highlighting, files, and interpretation without the need to download a language.
+- [Node Piston Client](https://github.com/dthree/node-piston), a Node.js wrapper for accessing the Piston API.
+- [Piston4J](https://github.com/the-codeboy/Piston4J), a Java wrapper for accessing the Piston API.
+- [Pyston](https://github.com/ffaanngg/pyston), a Python wrapper for accessing the Piston API.
+
+        
 <br>
 
 # Public API
 
 - Requires no installation and you can use it immediately.
-- Reference the Versions/Execute sections below to learn about the request and response formats.
+- Reference the Runtimes/Execute sections below to learn about the request and response formats.
 
 <br>
 
-When using the public Piston API, use the base URL:
+When using the public Piston API, use the following two URLs:
 
 ```
-https://emkc.org/api/v1/piston
-```
-
-#### GET
-```
-https://emkc.org/api/v1/piston/versions
-```
-#### POST
-```
-https://emkc.org/api/v1/piston/execute
+GET  https://emkc.org/api/v2/piston/runtimes
+POST https://emkc.org/api/v2/piston/execute
 ```
 
 > Important Note: The Piston API is rate limited to 5 requests per second. If you have a need for more requests than that
-and it's for a good cause, please reach out to me (EngineerMan#0001) on [Discord](https://discord.gg/engineerman)
-so we can discuss potentially getting you an unlimited key.
+> and it's for a good cause, please reach out to me (EngineerMan#0001) on [Discord](https://discord.gg/engineerman)
+> so we can discuss potentially getting you an unlimited key.
 
 <br>
 
 # Getting Started
 
+## All In One
+
 ### Host System Package Dependencies
 
-* NodeJS
-* lxc
-* libvirt
+- Docker
+- Docker Compose
+- Node JS
 
-<br>
-
-If your OS is not documented below, please open pull requests with the correct commands for your OS.
-
-<details>
-<summary><span style="font-size:1.43em;">CentOS / RHEL</span></summary>
-
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-nvm install --lts
-nvm use --lts
-
-yum install -y epel-release
-yum install -y lxc lxc-templates debootstrap libvirt
-systemctl start libvirtd
-```
-</details>
-
-<details>
-<summary><span style="font-size:1.43em;">Ubuntu (18.04)</span></summary>
-
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-nvm install --lts
-nvm use --lts
-
-apt install -y lxc lxc-templates debootstrap libvirt0
-```
-</details>
-
-<details>
-<summary><span style="font-size:1.43em;">Arch Linux</span></summary>
-
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-nvm install --lts
-nvm use --lts
-
-pacman -S lxc libvirt unzip
-```
-</details>
-
-#### After system dependencies are installed, clone this repository:
+### After system dependencies are installed, clone this repository:
 
 ```sh
 # clone and enter repo
 git clone https://github.com/engineer-man/piston
 ```
 
-#### Installation (simple)
+### Installation
 
-- Install additional dependencies python3, pip and distrobuilder
-- `cd container && ./build.sh`
-- Wait, it may take up to an hour.
-- `lxc-create -n piston -t local -- --metadata meta.tar.xz --fstree rootfs.tar.xz`
-- `cd lxc && ./start`
-- Good to go!
+```sh
+# Start the API container
+docker-compose up -d api
 
+# Install all the dependencies for the cli
+cd cli && npm i && cd -
+```
 
-#### Installation (advanced)
+The API will now be online with no language runtimes installed. To install runtimes, [use the CLI](#cli).
 
-- See `var/install.txt` for how to build the container manually
+## Just Piston (no CLI)
 
-#### CLI Usage
-- `cli/execute [language] [file path] [args]`
+### Host System Package Dependencies
+
+- Docker
+
+### Installation
+
+```sh
+docker run \
+    -v $PWD:'/piston' \
+    --tmpfs /piston/jobs \
+    -dit \
+    -p 2000:2000 \
+    --name piston_api \
+    ghcr.io/engineer-man/piston
+```
+
 <br>
 
 # Usage
 
 ### CLI
 
+The CLI is the main tool used for installing packages within piston, but also supports running code.
+
+You can execute the cli with `cli/index.js`.
+
 ```sh
-lxc/execute [language] [file path] [args]
+# List all available packages
+cli/index.js ppman list
+
+# Install latest python
+cli/index.js ppman install python
+
+# Install specific version of python
+cli/index.js ppman install python=3.9.4
+
+# Run a python script using the latest version
+echo 'print("Hello world!")' > test.py
+cli/index.js run python test.py
+
+# Run a python script using a specific version
+echo 'print("Hello world!")' > test.py
+cli/index.js run python test.py -l 3.9.4
+cli/index.js run python test.py -l 3.x
+cli/index.js run python test.py -l 3
+```
+
+If you are operating on a remote machine, add the `-u` flag like so:
+
+```sh
+cli/index.js -u http://piston.server:2000 ppman list
 ```
 
 ### API
-To use the API, it must first be started. Please note that if root is required to access
-LXC then the API must also be running as root. To start the API, run the following:
 
-```
-cd api
-./start
-```
+The container exposes an API on port 2000 by default.
+This is used by the CLI to carry out running jobs and package management.
 
-For your own local installation, the API is available at:
+#### Runtimes Endpoint
 
-```
-http://127.0.0.1:2000
-```
-
-#### Versions Endpoint
-`GET /versions`
+`GET /api/v2/runtimes`
 This endpoint will return the supported languages along with the current version and aliases. To execute
-code for a particular language using the `/execute` endpoint, either the name or one of the aliases must
-be provided.
+code for a particular language using the `/api/v2/execute` endpoint, either the name or one of the aliases must
+be provided, along with the version.
+Multiple versions of the same language may be present at the same time, and may be selected when running a job.
+
 ```json
 HTTP/1.1 200 OK
 Content-Type: application/json
 
 [
     {
-        "name": "awk",
-        "aliases": ["awk"],
-        "version": "1.3.3"
+        "language": "bash",
+        "version": "5.1.0",
+        "aliases": [
+            "sh"
+        ]
     },
     {
-        "name": "bash",
-        "aliases": ["bash"],
-        "version": "4.4.20"
+        "language": "brainfuck",
+        "version": "2.7.3",
+        "aliases": [
+            "bf"
+        ]
     },
-    {
-        "name": "c",
-        "aliases": ["c"],
-        "version": "7.5.0"
-    }
+    ...
 ]
 ```
 
 #### Execute Endpoint
-`POST /execute`
+
+`POST /api/v2/execute`
 This endpoint requests execution of some arbitrary code.
-- `language` (**required**) The language to use for execution, must be a string and supported by Piston (see list below).
-- `source` (**required**) The source code to execute, must be a string.
-- `stdin` (*optional*) The text to pass as stdin to the program. Must be a string or left out of the request.
-- `args` (*optional*) The arguments to pass to the program. Must be an array or left out of the request.
+
+- `language` (**required**) The language to use for execution, must be a string and must be installed.
+- `version` (**required**) The version of the language to use for execution, must be a string containing a SemVer selector for the version or the specific version number to use.
+- `files` (**required**) An array of files containing code or other data that should be used for execution. The first file in this array is considered the main file.
+- `files[].name` (_optional_) The name of the file to upload, must be a string containing no path or left out.
+- `files[].content` (**required**) The content of the files to upload, must be a string containing text to write.
+- `stdin` (_optional_) The text to pass as stdin to the program. Must be a string or left out. Defaults to blank string.
+- `args` (_optional_) The arguments to pass to the program. Must be an array or left out. Defaults to `[]`.
+- `compile_timeout` (_optional_) The maximum time allowed for the compile stage to finish before bailing out in milliseconds. Must be a number or left out. Defaults to `10000` (10 seconds).
+- `run_timeout` (_optional_) The maximum time allowed for the run stage to finish before bailing out in milliseconds. Must be a number or left out. Defaults to `3000` (3 seconds).
+- `compile_memory_limit` (_optional_) The maximum amount of memory the compile stage is allowed to use in bytes. Must be a number or left out. Defaults to `-1` (no limit)
+- `run_memory_limit` (_optional_) The maximum amount of memory the run stage is allowed to use in bytes. Must be a number or left out. Defaults to `-1` (no limit)
+
 ```json
 {
-    "language": "js",
-    "source": "console.log(process.argv)",
-    "stdin": "",
-    "args": [
-        "1",
-        "2",
-        "3"
-    ]
+  "language": "js",
+  "version": "15.10.0",
+  "files": [
+    {
+      "name": "my_cool_code.js",
+      "content": "console.log(process.argv)"
+    }
+  ],
+  "stdin": "",
+  "args": ["1", "2", "3"],
+  "compile_timeout": 10000,
+  "run_timeout": 3000,
+  "compile_memory_limit": -1,
+  "run_memory_limit": -1
 }
 ```
-A typical response upon successful execution will contain the `language`, `version`, `output` which
-is a combination of both `stdout` and `stderr` but in chronological order according to program output,
-as well as separate `stdout` and `stderr`.
+
+A typical response upon successful execution will contain 1 or 2 keys `run` and `compile`.
+`compile` will only be present if the language requested requires a compile stage.
+
+Each of these keys has an identical structure, containing both a `stdout` and `stderr` key, which is a string containing the text outputted during the stage into each buffer.
+It also contains the `code` and `signal` which was returned from each process.
+
 ```json
 HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-    "ran": true,
     "language": "js",
-    "version": "12.13.0",
-    "output": "[ '/usr/bin/node',\n  '/tmp/code.code',\n  '1',\n  '2',\n  '3' ]",
-    "stdout": "[ '/usr/bin/node',\n  '/tmp/code.code',\n  '1',\n  '2',\n  '3' ]",
-    "stderr": ""
+    "version": "15.10.0",
+    "run": {
+        "stdout": "[\n  '/piston/packages/node/15.10.0/bin/node',\n  '/piston/jobs/9501b09d-0105-496b-b61a-e5148cf66384/my_cool_code.js',\n  '1',\n  '2',\n  '3'\n]\n",
+        "stderr": "",
+        "output": "[\n  '/piston/packages/node/15.10.0/bin/node',\n  '/piston/jobs/9501b09d-0105-496b-b61a-e5148cf66384/my_cool_code.js',\n  '1',\n  '2',\n  '3'\n]\n",
+        "code": 0,
+        "signal": null
+    }
 }
 ```
+
 If a problem exists with the request, a `400` status code is returned and the reason in the `message` key.
+
 ```json
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
 
 {
-    "message": "Supplied language is not supported by Piston"
+    "message": "html-5.0.0 runtime is unknown"
 }
 ```
 
 <br>
 
 # Supported Languages
+
 `awk`,
 `bash`,
 `brainfuck`,
 `c`,
-`cpp`,
+`c++`,
+`cjam`,
 `clojure`,
+`cobol`,
+`coffeescript`,
+`cow`,
 `crystal`,
 `csharp`,
 `d`,
+`dart`,
 `dash`,
-`deno`,
+`dotnet`,
+`dragon`,
 `elixir`,
 `emacs`,
-`elisp`,
+`erlang`,
+`fortran`,
 `go`,
+`golfscript`,
+`groovy`,
 `haskell`,
 `java`,
+`javascript`,
 `jelly`,
 `julia`,
 `kotlin`,
@@ -281,38 +322,50 @@ Content-Type: application/json
 `nasm`,
 `nasm64`,
 `nim`,
-`node`,
+`ocaml`,
+`octave`,
 `osabie`,
 `paradoc`,
+`pascal`,
 `perl`,
 `php`,
+`ponylang`,
+`prolog`,
+`pure`,
+`pyth`,
+`python`,
 `python2`,
-`python3`,
+`raku`,
+`rockstar`,
 `ruby`,
 `rust`,
 `scala`,
 `swift`,
 `typescript`,
+`vlang`,
+`yeethon`,
 `zig`,
 
 <br>
 
 # Principle of Operation
-Piston utilizes LXC as the primary mechanism for sandboxing. There is a small API written in Node which takes
-in execution requests and executes them in the container. High level, the API writes
-a temporary source and args file to `/tmp` and that gets mounted read-only along with the execution scripts into the container.
+
+Piston uses Docker as the primary mechanism for sandboxing. There is an API within the container written in Node
+which takes in execution requests and executees them within the container safely.
+High level, the API writes any source code to a temporary directory in `/piston/jobs`.
 The source file is either ran or compiled and ran (in the case of languages like c, c++, c#, go, etc.).
 
 <br>
 
 # Security
-LXC provides a great deal of security out of the box in that it's separate from the system.
+
+Docker provides a great deal of security out of the box in that it's separate from the system.
 Piston takes additional steps to make it resistant to
 various privilege escalation, denial-of-service, and resource saturation threats. These steps include:
+
 - Disabling outgoing network interaction
-- Capping max processes at 64 (resists `:(){ :|: &}:;`, `while True: os.fork()`, etc.)
+- Capping max processes at 256 by default (resists `:(){ :|: &}:;`, `while True: os.fork()`, etc.)
 - Capping max files at 2048 (resists various file based attacks)
-- Mounting all resources read-only (resists `sudo rm -rf --no-preserve-root /`)
 - Cleaning up all temp space after each execution (resists out of drive space attacks)
 - Running as a variety of unprivileged users
 - Capping runtime execution at 3 seconds
@@ -322,4 +375,5 @@ various privilege escalation, denial-of-service, and resource saturation threats
 <br>
 
 # License
+
 Piston is licensed under the MIT license.
